@@ -17,45 +17,26 @@ public:
     bool forwardScan();
     bool backwardScan();
     bool scan(const int& row, const int& col, const int mask[2][5]);
-    // int forward(const int& row, const int& col);
 
     bool inMatrix(const int& row, const int& col);
     bool isVaild(const int& row, const int& col);
-    bool canConnect(const int& row, const int& col, const int& label);
-    void connect(const int& row, const int& col, const int& label);
-    void newRegion(const int& row, const int& col);
     int Tmin(const int& row, const int& col, const int mask[2][5]);
-    void NoneOperation(const int& row, const int& col);
 
-    void setConnectivity(int c) {
-        if (c==4 || c==8)
-        connectivity_ = c;
-    }
+    // check the connectivity according to the states. 
+    virtual bool canConnect(const int& row, const int& col, const int& label);
+
+    // process connection between a region including cell(i,j) and another one labeled by label.
+    // update state of the region 
+    virtual void connect(const int& row, const int& col, const int& label);
+    
+    // process initialize the state of the new region (new label).
+    virtual void newRegion(const int& row, const int& col);
+    
+
 private:
-    enum {
-        Right = 0,
-        RRight = 1,
-        Under=2,
-        RUnder=3
-    };
-
-    enum {
-        Left=0,
-        LLeft=1,
-        Above=2,
-        LAbove=3
-    };
-    enum 
-    {
-        None = 0,
-        Isolate = 1,
-        Otherwise = 2,
-    };
     const int f_mask_[2][5] = {{0,-1,-1,-1, 0}, {0, 0, 1,-1,-1}};
     const int b_mask_[2][5] = {{0, 1, 1, 1, 0}, {0, 0,-1, 1, 1}};
 
-    int connectivity_ = 8;
-    int threshold_ = 0.25;
     const std::vector<std::vector<Eigen::VectorXd>>* state_;
     const std::vector<std::pair<Eigen::MatrixXd, double>>* score_; // score and threshold
     Eigen::MatrixXi* labels_;

@@ -25,5 +25,6 @@ int main()
     ccl_solver.firstScan();
     ccl_solver.backwardScan();
 
+    std::cout << labels << std::endl;
     return 0;
 }

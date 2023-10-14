@@ -26,7 +26,7 @@ bool CCL::inMatrix(const int& row, const int& col)
     return true;
 }
 
-// check the connectivity according to some indexes. 
+// check the connectivity according to the states. 
 bool CCL::canConnect(const int& r, const int& c, const int& label)
 {
     if (labels_->coeff(r,c)==0); // connect a cell
@@ -34,12 +34,14 @@ bool CCL::canConnect(const int& r, const int& c, const int& label)
     return true;
 }
 
-// process connection between a region including cell(i,j) and another one labeled by label. 
+// process connection between a region including cell(i,j) and another one labeled by label.
+// update state of the region 
 void CCL::connect(const int& row, const int& col, const int& label)
 {
 
 }
 
+// process initialize the state of the new region (new label).
 void CCL::newRegion(const int& row, const int& col)
 {
 
@@ -62,12 +64,6 @@ int CCL::Tmin(const int& row, const int& col, const int mask[2][5])
     return min_label;
 
 }
-
-void CCL::NoneOperation(const int& row, const int& col)
-{
-    labels_->coeffRef(row, col) = 0;
-}
-
 
 void CCL::firstScan()
 {
@@ -99,6 +95,7 @@ void CCL::firstScan()
                 labels_->coeffRef(i,j) = m_;
                 table_.push_back(m_);
                 ++m_;
+                newRegion(i,j);
             }
             // at least one of the cells in the mask have a label.  
             else 
@@ -166,13 +163,13 @@ bool CCL::scan(const int& row, const int& col, const int mask[2][5])
         }
     }
 
-    std::cout << "m: " << m_ << std::endl;
-    std::cout << "new_label: " << new_label << std::endl;
-    std::cout << "table: ";
-    for (int i=0; i<table_.size(); ++i) std::cout << table_[i] << " ";
-    std::cout << std::endl;
-    std::cout << "(i,j): (" << row << "," << col << ")" << std::endl; 
-    std::cout << *labels_ << std::endl;
+    // std::cout << "m: " << m_ << std::endl;
+    // std::cout << "new_label: " << new_label << std::endl;
+    // std::cout << "table: ";
+    // for (int i=0; i<table_.size(); ++i) std::cout << table_[i] << " ";
+    // std::cout << std::endl;
+    // std::cout << "(i,j): (" << row << "," << col << ")" << std::endl; 
+    // std::cout << *labels_ << std::endl;
     
 
     return change_label;
