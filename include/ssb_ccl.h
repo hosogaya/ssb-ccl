@@ -6,13 +6,13 @@
 
 namespace ccl
 {
-class CCL
+class SSbCCL
 {
 public:
-    CCL();
-    ~CCL();
+    SSbCCL();
+    ~SSbCCL();
 
-    bool initialize(const std::vector<std::vector<Eigen::VectorXd>>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels);
+    bool initialize(const std::vector<std::vector<Eigen::VectorXd>>& state, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels);
     void firstScan();
     bool forwardScan();
     bool backwardScan();

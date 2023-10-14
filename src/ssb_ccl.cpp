@@ -1,13 +1,13 @@
-#include <ccl.h>
+#include <ssb_ccl.h>
 #include <iostream>
 namespace ccl {
-CCL::CCL(){}
+SSbCCL::SSbCCL(){}
 
-CCL::~CCL(){}
+SSbCCL::~SSbCCL(){}
 
 
 // Check whether the cell has large enough values for all types of the scores. 
-bool CCL::isVaild(const int& row, const int& col) 
+bool SSbCCL::isVaild(const int& row, const int& col) 
 {
     for (const auto& map: *score_) 
     {
@@ -16,7 +16,7 @@ bool CCL::isVaild(const int& row, const int& col)
     return true;
 }
 
-bool CCL::inMatrix(const int& row, const int& col)
+bool SSbCCL::inMatrix(const int& row, const int& col)
 {
     if (row >= rows_) return false;
     if (row < 0) return false;
@@ -27,7 +27,7 @@ bool CCL::inMatrix(const int& row, const int& col)
 }
 
 // check the connectivity according to the states. 
-bool CCL::canConnect(const int& r, const int& c, const int& label)
+bool SSbCCL::canConnect(const int& r, const int& c, const int& label)
 {
     if (labels_->coeff(r,c)==0); // connect a cell
     else ; // connect a region
@@ -36,18 +36,18 @@ bool CCL::canConnect(const int& r, const int& c, const int& label)
 
 // process connection between a region including cell(i,j) and another one labeled by label.
 // update state of the region 
-void CCL::connect(const int& row, const int& col, const int& label)
+void SSbCCL::connect(const int& row, const int& col, const int& label)
 {
 
 }
 
 // process initialize the state of the new region (new label).
-void CCL::newRegion(const int& row, const int& col)
+void SSbCCL::newRegion(const int& row, const int& col)
 {
 
 }
 
-int CCL::Tmin(const int& row, const int& col, const int mask[2][5])
+int SSbCCL::Tmin(const int& row, const int& col, const int mask[2][5])
 {
     int min_label=m_;
     for (int i=0; i<5; ++i) 
@@ -65,7 +65,7 @@ int CCL::Tmin(const int& row, const int& col, const int mask[2][5])
 
 }
 
-void CCL::firstScan()
+void SSbCCL::firstScan()
 {
     for (int i=0; i<rows_; ++i)
     {
@@ -130,7 +130,7 @@ void CCL::firstScan()
     }
 }
 
-bool CCL::scan(const int& row, const int& col, const int mask[2][5])
+bool SSbCCL::scan(const int& row, const int& col, const int mask[2][5])
 {
     if (labels_->coeffRef(row,col) == 0) return false;
     int new_label = Tmin(row, col, mask);
@@ -177,7 +177,7 @@ bool CCL::scan(const int& row, const int& col, const int mask[2][5])
 
 // process forward scan. 
 // Return whether the labels changed
-bool CCL::forwardScan()
+bool SSbCCL::forwardScan()
 {
     bool change_labels = false;
     for (int i=0;i<rows_; ++i)
@@ -191,7 +191,7 @@ bool CCL::forwardScan()
     return change_labels;
 }
 
-bool CCL::backwardScan()
+bool SSbCCL::backwardScan()
 {
     bool change_labels = false;
     for (int i=rows_-1; i>=0; --i)
@@ -205,7 +205,7 @@ bool CCL::backwardScan()
     return change_labels;
 }
 
-bool CCL::initialize(const std::vector<std::vector<Eigen::VectorXd>>& state, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels)
+bool SSbCCL::initialize(const std::vector<std::vector<Eigen::VectorXd>>& state, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels)
 {
     if (score.size() == 0) return false;
     rows_ = score[0].first.rows();

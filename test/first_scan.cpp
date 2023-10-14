@@ -1,8 +1,8 @@
-#include <ccl.h>
+#include <ssb_ccl.h>
 #include <iostream>
 int main()
 {
-    ccl::CCL ccl_solver;
+    ccl::SSbCCL ccl_solver;
     Eigen::MatrixXd s(7, 7);
     s << 1, 1, 1, 1, 1, 1, 1,
         0, 0, 0, 0, 0, 0, 1,
