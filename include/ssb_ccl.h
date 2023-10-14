@@ -18,12 +18,12 @@ public:
     bool backwardScan();
     bool scan(const int& row, const int& col, const int mask[2][5]);
 
-    bool inMatrix(const int& row, const int& col);
-    bool isVaild(const int& row, const int& col);
-    int Tmin(const int& row, const int& col, const int mask[2][5]);
+    bool inMatrix(const int& row, const int& col) const;
+    bool isVaild(const int& row, const int& col) const;
+    int Tmin(const int& row, const int& col, const int mask[2][5]) const;
 
     // check the connectivity according to the states. 
-    virtual bool canConnect(const int& row, const int& col, const int& label);
+    virtual bool canConnect(const int& row, const int& col, const int& label) const;
 
     // process connection between a region including cell(i,j) and another one labeled by label.
     // update state of the region 
@@ -33,7 +33,7 @@ public:
     virtual void newRegion(const int& row, const int& col);
     
 
-private:
+protected:
     const int f_mask_[2][5] = {{0,-1,-1,-1, 0}, {0, 0, 1,-1,-1}};
     const int b_mask_[2][5] = {{0, 1, 1, 1, 0}, {0, 0,-1, 1, 1}};
 

@@ -17,6 +17,18 @@ target_link_libraries(${PROJECT_NAME}
     Eigen3::Eigen
 )
 
+add_library(elevation_ccl SHARED src/elevation_ccl.cpp)
+target_include_directories(elevation_ccl
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(elevation_ccl
+    Eigen3::Eigen
+    ${PROJECT_NAME}
+)
+
 
 function(add_ccl_test base_name)
 	add_executable(${base_name} test/${base_name}.cpp)

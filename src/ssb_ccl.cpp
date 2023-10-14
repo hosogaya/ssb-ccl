@@ -7,7 +7,7 @@ SSbCCL::~SSbCCL(){}
 
 
 // Check whether the cell has large enough values for all types of the scores. 
-bool SSbCCL::isVaild(const int& row, const int& col) 
+bool SSbCCL::isVaild(const int& row, const int& col) const
 {
     for (const auto& map: *score_) 
     {
@@ -16,7 +16,7 @@ bool SSbCCL::isVaild(const int& row, const int& col)
     return true;
 }
 
-bool SSbCCL::inMatrix(const int& row, const int& col)
+bool SSbCCL::inMatrix(const int& row, const int& col) const
 {
     if (row >= rows_) return false;
     if (row < 0) return false;
@@ -27,7 +27,7 @@ bool SSbCCL::inMatrix(const int& row, const int& col)
 }
 
 // check the connectivity according to the states. 
-bool SSbCCL::canConnect(const int& r, const int& c, const int& label)
+bool SSbCCL::canConnect(const int& r, const int& c, const int& label) const
 {
     if (labels_->coeff(r,c)==0); // connect a cell
     else ; // connect a region
@@ -47,7 +47,7 @@ void SSbCCL::newRegion(const int& row, const int& col)
 
 }
 
-int SSbCCL::Tmin(const int& row, const int& col, const int mask[2][5])
+int SSbCCL::Tmin(const int& row, const int& col, const int mask[2][5]) const
 {
     int min_label=m_;
     for (int i=0; i<5; ++i) 
@@ -55,7 +55,7 @@ int SSbCCL::Tmin(const int& row, const int& col, const int mask[2][5])
         int r=row+mask[0][i];
         int c=col+mask[1][i];
         if (!inMatrix(r, c)) continue;
-        int& label = table_[labels_->coeffRef(r,c)];
+        const int& label = table_[labels_->coeffRef(r,c)];
         if (label == 0) continue;
         if (!canConnect(r, c, label)) continue;
 
