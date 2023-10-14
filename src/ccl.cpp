@@ -53,11 +53,11 @@ int CCL::Tmin(const int& row, const int& col, const int mask[2][5])
         int r=row+mask[0][i];
         int c=col+mask[1][i];
         if (!inMatrix(r, c)) continue;
-        int& label = labels_->coeffRef(r,c);
+        int& label = table_[labels_->coeffRef(r,c)];
         if (label == 0) continue;
         if (!canConnect(r, c, label)) continue;
 
-        if (tree_[label] < min_label) min_label = label;
+        if (label < min_label) min_label = label;
     }
     return min_label;
 
@@ -68,21 +68,6 @@ void CCL::NoneOperation(const int& row, const int& col)
     labels_->coeffRef(row, col) = 0;
 }
 
-// int CCL::forward(const int& row, const int& col)
-// {
-//     if (isNAN(row, col)) {
-//         return None;
-//     }
-//     std::vector<bool> is_NAN(4);
-//     for (int i=1; i<5; ++i) 
-//     {
-//         is_NAN[i-1] = isNAN(row+f_mask[0][i], col+f_mask[0][i]);
-//     }
-//     // all of cells in the mask has NAN value
-//     if (std::all_of(is_NAN.begin(), is_NAN.end(), [](bool x){return x;})) return Isolate;
-
-//     return Otherwise;
-// }
 
 void CCL::firstScan()
 {
@@ -91,7 +76,7 @@ void CCL::firstScan()
         for (int j=0; j<cols_; ++j)
         {
             if (!isVaild(i,j)) {    
-                std::cout << "The cell does not have vaild value. " << std::endl;
+                // std::cout << "The cell does not have vaild value. " << std::endl;
                 labels_->coeffRef(i,j) = 0;
                 continue;
             }
@@ -99,54 +84,131 @@ void CCL::firstScan()
             std::vector<bool> is_labeled(4);
             for (int k=1; k<5; ++k) 
             {
-                int r=i+f_mask[0][k];
-                int c=j+f_mask[1][k];
+                int r=i+f_mask_[0][k];
+                int c=j+f_mask_[1][k];
                 if (!inMatrix(r, c)) {
                     is_labeled[k-1] = false;
                     continue;
                 }
                 is_labeled[k-1] = labels_->coeffRef(r, c) != 0;
             }
-            for (int k=0; k<4; ++k) std::cout << is_labeled[k] << " ";
-            std::cout << std::endl;
             // all of cells in the mask do not have a label. 
             if (std::all_of(is_labeled.begin(), is_labeled.end(), [](bool x){return !x;})) 
             {
-                std::cout << "all of cells in the mask do not have a label." << std::endl;
+                // std::cout << "all of cells in the mask do not have a label." << std::endl;
                 labels_->coeffRef(i,j) = m_;
-                tree_.push_back(m_);
+                table_.push_back(m_);
                 ++m_;
             }
             // at least one of the cells in the mask have a label.  
             else 
             {
-                std::cout << "at least one of the cells in the mask have a label." << std::endl;
-                labels_->coeffRef(i, j) = Tmin(i, j, f_mask);
+                // std::cout << "at least one of the cells in the mask have a label." << std::endl;
+                labels_->coeffRef(i, j) = Tmin(i, j, f_mask_);
                 connect(i,j, labels_->coeffRef(i,j));
                 for (int k=1; k<5; ++k)
                 {
-                    int r=i+f_mask[0][k];
-                    int c=j+f_mask[1][k];
+                    int r=i+f_mask_[0][k];
+                    int c=j+f_mask_[1][k];
                     if (is_labeled[k-1]) 
                     {
                         if (canConnect(r, c, labels_->coeff(r, c)))
-                        tree_[labels_->coeff(r, c)] = labels_->coeffRef(i,j); // Tmin
+                        table_[labels_->coeff(r, c)] = labels_->coeffRef(i,j); // Tmin
+                        // connect(r, c, labels_->coeff(i,j));
                     }
                 }
             }
-            std::cout << "lables: " << std::endl;
-            std::cout << *labels_ << std::endl;
-            std::cout << "tree: ";
-            for (const auto& t: tree_) std::cout << t << " ";
-            std::cout << std::endl;
-            std::cout << "m: " << m_ << std::endl;
+            // std::cout << "is_labeled: ";
+            // for (int k=0; k<4; ++k) std::cout << is_labeled[k] << " ";
+            // std::cout << std::endl;
+            // std::cout << "lables: " << std::endl;
+            // std::cout << *labels_ << std::endl;
+            // std::cout << "tree: ";
+            // for (const auto& t: table_) std::cout << t << " ";
+            // std::cout << std::endl;
+            // std::cout << "m: " << m_ << std::endl;
 
-            std::cout << std::endl;
+            // std::cout << std::endl;
         }
     }
 }
 
-bool CCL::connectedComponetsLabeling(const std::vector<Eigen::MatrixXd>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels)
+bool CCL::scan(const int& row, const int& col, const int mask[2][5])
+{
+    if (labels_->coeffRef(row,col) == 0) return false;
+    int new_label = Tmin(row, col, mask);
+
+    bool change_label = false;
+    // update label matrix
+    if (new_label != labels_->coeffRef(row, col))
+    {
+        change_label = true;
+        labels_->coeffRef(row,col) = new_label;
+        // connect(row,col, labels_->coeffRef(row,col));
+    }
+
+    // update label table
+    for (int k=1; k<5; ++k)
+    {
+        int r=row+mask[0][k];
+        int c=col+mask[1][k];
+        if (!inMatrix(r, c)) continue;
+        if (labels_->coeff(r,c)==0) continue;
+        
+        if (table_[labels_->coeff(r, c)] != labels_->coeff(row,col))
+        {
+            if (canConnect(r, c, labels_->coeff(r, c)))
+            {
+                change_label = true;
+                table_[labels_->coeff(r, c)] = labels_->coeffRef(row,col); // Tmin
+                // connect(r, c, labels_->coeff(row,col));
+            }
+        }
+    }
+
+    std::cout << "m: " << m_ << std::endl;
+    std::cout << "new_label: " << new_label << std::endl;
+    std::cout << "table: ";
+    for (int i=0; i<table_.size(); ++i) std::cout << table_[i] << " ";
+    std::cout << std::endl;
+    std::cout << "(i,j): (" << row << "," << col << ")" << std::endl; 
+    std::cout << *labels_ << std::endl;
+    
+
+    return change_label;
+}
+
+// process forward scan. 
+// Return whether the labels changed
+bool CCL::forwardScan()
+{
+    bool change_labels = false;
+    for (int i=0;i<rows_; ++i)
+    {
+        for (int j=0; j<cols_; ++j)
+        {
+            change_labels |= scan(i,j, f_mask_);
+        }
+    }
+
+    return change_labels;
+}
+
+bool CCL::backwardScan()
+{
+    bool change_labels = false;
+    for (int i=rows_-1; i>=0; --i)
+    {
+        for (int j=cols_-1; j>=0; --j) 
+        {
+            change_labels |= scan(i,j, b_mask_);
+        }
+    }
+
+    return change_labels;
+}
+
+bool CCL::initialize(const std::vector<Eigen::MatrixXd>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels)
 {
     rows_ = x[0].rows();
     cols_ = x[0].cols();
@@ -163,11 +225,11 @@ bool CCL::connectedComponetsLabeling(const std::vector<Eigen::MatrixXd>& x, cons
     labels_ = &labels;
     labels_->setZero();
     labels_->resize(rows_, cols_);
-    tree_.resize(1);
-    tree_[0] = std::numeric_limits<int>::infinity();
+    table_.resize(1);
+    table_[0] = std::numeric_limits<int>::infinity();
     m_ = 1;
 
-    firstScan();
+    return true;
 }
 
 }

@@ -12,8 +12,11 @@ public:
     CCL();
     ~CCL();
 
-    bool connectedComponetsLabeling(const std::vector<Eigen::MatrixXd>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels);
+    bool initialize(const std::vector<Eigen::MatrixXd>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels);
     void firstScan();
+    bool forwardScan();
+    bool backwardScan();
+    bool scan(const int& row, const int& col, const int mask[2][5]);
     // int forward(const int& row, const int& col);
 
     bool inMatrix(const int& row, const int& col);
@@ -48,15 +51,15 @@ private:
         Isolate = 1,
         Otherwise = 2,
     };
-    const int f_mask[2][5] = {{0,-1,-1,-1, 0}, {0, 0, 1,-1,-1}};
-    const int b_masl[2][5] = {{0, 1, 1, 1,-0}, {0, 0,-1, 1, 1}};
+    const int f_mask_[2][5] = {{0,-1,-1,-1, 0}, {0, 0, 1,-1,-1}};
+    const int b_mask_[2][5] = {{0, 1, 1, 1, 0}, {0, 0,-1, 1, 1}};
 
     int connectivity_ = 8;
     int threshold_ = 0.25;
     const std::vector<Eigen::MatrixXd>* x_;
     const std::vector<std::pair<Eigen::MatrixXd, double>>* score_; // score and threshold
     Eigen::MatrixXi* labels_;
-    std::vector<int> tree_;
+    std::vector<int> table_;
     int m_ = 1;
     int rows_, cols_;
 };

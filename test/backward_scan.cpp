@@ -27,7 +27,7 @@ int main()
     scores.emplace_back(std::make_pair(s, 0.5));
     ccl_solver.initialize(xx, scores, labels);
     ccl_solver.firstScan();
-    std::cout << labels << std::endl;
+    ccl_solver.backwardScan();
 
     return 0;
 }

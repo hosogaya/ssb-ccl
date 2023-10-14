@@ -34,3 +34,4 @@ function(add_ccl_test base_name)
 endfunction()
 
 add_ccl_test(first_scan)
+add_ccl_test(backward_scan)
