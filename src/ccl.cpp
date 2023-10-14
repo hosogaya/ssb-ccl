@@ -208,19 +208,20 @@ bool CCL::backwardScan()
     return change_labels;
 }
 
-bool CCL::initialize(const std::vector<Eigen::MatrixXd>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels)
+bool CCL::initialize(const std::vector<std::vector<Eigen::VectorXd>>& state, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels)
 {
-    rows_ = x[0].rows();
-    cols_ = x[0].cols();
+    if (score.size() == 0) return false;
+    rows_ = score[0].first.rows();
+    cols_ = score[0].first.cols();
 
-    if (!std::all_of(x.begin(), x.end(), [this](const Eigen::MatrixXd& mat){return (mat.rows()==rows_) && (mat.cols()==cols_);})) 
+    if (state.size() != rows_ || !std::all_of(state.begin(), state.end(), [this](const auto& x){return x.size() == cols_;})) 
     {
         std::cout << "matrixes in x have different size." << std::endl;
         return false;
     }
 
     // set vars
-    x_ = &x;
+    state_ = &state;
     score_ = &score;
     labels_ = &labels;
     labels_->setZero();

@@ -3,16 +3,7 @@
 int main()
 {
     ccl::CCL ccl_solver;
-    Eigen::MatrixXd x(7,7), y(7,7), z(7,7), s(7, 7);
-    x << 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1;
-    y = x;
-    z = x;
+    Eigen::MatrixXd s(7, 7);
     s << 1, 1, 1, 1, 1, 1, 1,
         0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 0, 1,
@@ -22,7 +13,12 @@ int main()
         1, 1, 1, 1, 1, 1, 1;
 
     Eigen::MatrixXi labels;
-    std::vector<Eigen::MatrixXd> xx{x, y, z};
+    std::vector<std::vector<Eigen::VectorXd>> xx(7);
+    for (int i=0; i<xx.size(); ++i) {
+        xx[i].resize(7);
+        for (int j=0; j<xx[i].size(); ++j)
+            xx[i][j].resize(3);
+    }
     std::vector<std::pair<Eigen::MatrixXd, double>> scores;
     scores.emplace_back(std::make_pair(s, 0.5));
     ccl_solver.initialize(xx, scores, labels);

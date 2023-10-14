@@ -12,7 +12,7 @@ public:
     CCL();
     ~CCL();
 
-    bool initialize(const std::vector<Eigen::MatrixXd>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels);
+    bool initialize(const std::vector<std::vector<Eigen::VectorXd>>& x, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels);
     void firstScan();
     bool forwardScan();
     bool backwardScan();
@@ -56,7 +56,7 @@ private:
 
     int connectivity_ = 8;
     int threshold_ = 0.25;
-    const std::vector<Eigen::MatrixXd>* x_;
+    const std::vector<std::vector<Eigen::VectorXd>>* state_;
     const std::vector<std::pair<Eigen::MatrixXd, double>>* score_; // score and threshold
     Eigen::MatrixXi* labels_;
     std::vector<int> table_;
