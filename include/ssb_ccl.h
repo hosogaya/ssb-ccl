@@ -6,13 +6,18 @@
 
 namespace ccl
 {
+
+using Matrix = Eigen::MatrixXf;
+using Vector = Eigen::VectorXf;
+using ScoreMatrix = std::vector<std::pair<Matrix, float>>;
+using StateMatrix = std::vector<std::vector<Vector>>;
 class SSbCCL
 {
 public:
     SSbCCL();
     ~SSbCCL();
 
-    bool initialize(const std::vector<std::vector<Eigen::VectorXd>>& state, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels);
+    bool initialize(const StateMatrix& state, const ScoreMatrix& score, Matrix& labels);
     void firstScan();
     bool forwardScan();
     bool backwardScan();
@@ -37,9 +42,9 @@ protected:
     const int f_mask_[2][5] = {{0,-1,-1,-1, 0}, {0, 0, 1,-1,-1}};
     const int b_mask_[2][5] = {{0, 1, 1, 1, 0}, {0, 0,-1, 1, 1}};
 
-    const std::vector<std::vector<Eigen::VectorXd>>* state_;
-    const std::vector<std::pair<Eigen::MatrixXd, double>>* score_; // score and threshold
-    Eigen::MatrixXi* labels_;
+    const StateMatrix* state_;
+    const ScoreMatrix* score_; // score and threshold
+    Matrix* labels_;
     std::vector<int> table_;
     int m_ = 1;
     int rows_, cols_;

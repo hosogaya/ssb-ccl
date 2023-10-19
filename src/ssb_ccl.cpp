@@ -205,7 +205,7 @@ bool SSbCCL::backwardScan()
     return change_labels;
 }
 
-bool SSbCCL::initialize(const std::vector<std::vector<Eigen::VectorXd>>& state, const std::vector<std::pair<Eigen::MatrixXd, double>>& score, Eigen::MatrixXi& labels)
+bool SSbCCL::initialize(const StateMatrix& state, const ScoreMatrix& score, Matrix& labels)
 {
     if (score.size() == 0) return false;
     rows_ = score[0].first.rows();

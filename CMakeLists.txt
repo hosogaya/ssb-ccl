@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 project(ssb-ccl)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -17,16 +17,24 @@ target_link_libraries(${PROJECT_NAME}
     Eigen3::Eigen
 )
 
-add_library(elevation_ccl SHARED src/elevation_ccl.cpp)
-target_include_directories(elevation_ccl
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}_export
+    LIBRARY DESTINATION lib
+    INCLUDES DESTINATION include
+    PUBLIC_HEADER DESTINATION include
 )
 
-target_link_libraries(elevation_ccl
-    Eigen3::Eigen
-    ${PROJECT_NAME}
+install(
+    EXPORT  ${PROJECT_NAME}_export
+    FILE    ${PROJECT_NAME}-config.cmake
+    DESTINATION share/cmake/${PROJECT_NAME}
+    EXPORT_LINK_INTERFACE_LIBRARIES
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
 )
 
 
