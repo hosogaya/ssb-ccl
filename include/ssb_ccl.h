@@ -25,8 +25,10 @@ public:
     bool scan(const int& row, const int& col, const int mask[2][5]);
 
     bool inMatrix(const int& row, const int& col) const;
-    bool isVaild(const int& row, const int& col) const;
     int Tmin(const int& row, const int& col, const int mask[2][5]) const;
+
+    // check the socre of cell(row, col) has valid value
+    virtual bool isVaild(const int& row, const int& col) const;
 
     // check the connectivity according to the states. 
     virtual bool canConnect(const int& row, const int& col, const int& label) const;
