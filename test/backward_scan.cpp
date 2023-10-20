@@ -12,7 +12,7 @@ int main()
         1, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1;
 
-    ccl::Matrix labels;
+    ccl::LabelMatrix labels;
     ccl::StateMatrix xx(7);
     for (int i=0; i<xx.size(); ++i) {
         xx[i].resize(7);

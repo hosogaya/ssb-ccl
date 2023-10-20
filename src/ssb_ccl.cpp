@@ -11,6 +11,7 @@ bool SSbCCL::isVaild(const int& row, const int& col) const
 {
     for (const auto& map: *score_) 
     {
+        if (map.first(row, col) == NAN) return false; 
         if (map.first(row, col) < map.second) return false;
     }
     return true;
@@ -57,12 +58,11 @@ int SSbCCL::Tmin(const int& row, const int& col, const int mask[2][5]) const
         if (!inMatrix(r, c)) continue;
         const int& label = table_[labels_->coeffRef(r,c)];
         if (label == 0) continue;
-        if (!canConnect(r, c, label)) continue;
+        if (!canConnect(row, col, label)) continue;
 
         if (label < min_label) min_label = label;
     }
     return min_label;
-
 }
 
 void SSbCCL::firstScan()
@@ -71,6 +71,7 @@ void SSbCCL::firstScan()
     {
         for (int j=0; j<cols_; ++j)
         {
+            // std::cout << "Index: (" << i << "," << j << ")" << std::endl; 
             if (!isVaild(i,j)) {    
                 // std::cout << "The cell does not have vaild value. " << std::endl;
                 labels_->coeffRef(i,j) = 0;
@@ -86,7 +87,11 @@ void SSbCCL::firstScan()
                     is_labeled[k-1] = false;
                     continue;
                 }
-                is_labeled[k-1] = labels_->coeffRef(r, c) != 0;
+                if (labels_->coeff(r,c) != 0)
+                {
+                    if (!canConnect(i,j, labels_->coeff(r,c))) is_labeled[k-1] = true;
+                }
+                is_labeled[k-1] = false;
             }
             // all of cells in the mask do not have a label. 
             if (std::all_of(is_labeled.begin(), is_labeled.end(), [](bool x){return !x;})) 
@@ -101,7 +106,10 @@ void SSbCCL::firstScan()
             else 
             {
                 // std::cout << "at least one of the cells in the mask have a label." << std::endl;
-                labels_->coeffRef(i, j) = Tmin(i, j, f_mask_);
+                int t_min = Tmin(i, j, f_mask_);
+                if (t_min == m_) continue;
+                
+                labels_->coeffRef(i, j) = t_min;
                 connect(i,j, labels_->coeffRef(i,j));
                 for (int k=1; k<5; ++k)
                 {
@@ -109,17 +117,16 @@ void SSbCCL::firstScan()
                     int c=j+f_mask_[1][k];
                     if (is_labeled[k-1]) 
                     {
-                        if (canConnect(r, c, labels_->coeff(r, c)))
-                        table_[labels_->coeff(r, c)] = labels_->coeffRef(i,j); // Tmin
-                        // connect(r, c, labels_->coeff(i,j));
+                        table_[labels_->coeff(r, c)] = t_min; // Tmin
+                        connect(r, c, t_min);
                     }
                 }
             }
             // std::cout << "is_labeled: ";
             // for (int k=0; k<4; ++k) std::cout << is_labeled[k] << " ";
             // std::cout << std::endl;
-            // std::cout << "lables: " << std::endl;
-            // std::cout << *labels_ << std::endl;
+            // // std::cout << "lables: " << std::endl;
+            // // std::cout << *labels_ << std::endl;
             // std::cout << "tree: ";
             // for (const auto& t: table_) std::cout << t << " ";
             // std::cout << std::endl;
@@ -134,6 +141,7 @@ bool SSbCCL::scan(const int& row, const int& col, const int mask[2][5])
 {
     if (labels_->coeffRef(row,col) == 0) return false;
     int new_label = Tmin(row, col, mask);
+    if (new_label == m_) return false;
 
     bool change_label = false;
     // update label matrix
@@ -141,7 +149,7 @@ bool SSbCCL::scan(const int& row, const int& col, const int mask[2][5])
     {
         change_label = true;
         labels_->coeffRef(row,col) = new_label;
-        // connect(row,col, labels_->coeffRef(row,col));
+        connect(row,col, labels_->coeffRef(row,col));
     }
 
     // update label table
@@ -154,11 +162,11 @@ bool SSbCCL::scan(const int& row, const int& col, const int mask[2][5])
         
         if (table_[labels_->coeff(r, c)] != labels_->coeff(row,col))
         {
-            if (canConnect(r, c, labels_->coeff(r, c)))
+            if (canConnect(row, col, labels_->coeff(r, c)))
             {
                 change_label = true;
                 table_[labels_->coeff(r, c)] = labels_->coeffRef(row,col); // Tmin
-                // connect(r, c, labels_->coeff(row,col));
+                connect(r, c, labels_->coeff(row,col));
             }
         }
     }
@@ -205,7 +213,7 @@ bool SSbCCL::backwardScan()
     return change_labels;
 }
 
-bool SSbCCL::initialize(const StateMatrix& state, const ScoreMatrix& score, Matrix& labels)
+bool SSbCCL::initialize(const StateMatrix& state, const ScoreMatrix& score, LabelMatrix& labels)
 {
     if (score.size() == 0) return false;
     rows_ = score[0].first.rows();
@@ -221,8 +229,8 @@ bool SSbCCL::initialize(const StateMatrix& state, const ScoreMatrix& score, Matr
     state_ = &state;
     score_ = &score;
     labels_ = &labels;
-    labels_->setZero();
     labels_->resize(rows_, cols_);
+    labels_->setZero();
     table_.resize(1);
     table_[0] = std::numeric_limits<int>::infinity();
     m_ = 1;
