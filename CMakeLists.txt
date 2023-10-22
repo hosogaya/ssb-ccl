@@ -4,6 +4,8 @@ project(ssb-ccl)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED src/ssb_ccl.cpp)
@@ -11,11 +13,12 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
+    ${EIGEN3_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME}
-    Eigen3::Eigen
-)
+# target_link_libraries(${PROJECT_NAME}
+#     Eigen3::Eigen
+# )
 
 install(
     TARGETS ${PROJECT_NAME}
@@ -37,6 +40,10 @@ install(
   DESTINATION include
 )
 
+ament_export_include_directories(include ${EIGEN3_INCLUDE_DIR})
+ament_export_libraries(
+  ${PROJECT_NAME}
+)
 
 function(add_ccl_test base_name)
 	add_executable(${base_name} test/${base_name}.cpp)

@@ -7,11 +7,11 @@ SSbCCL::~SSbCCL(){}
 
 
 // Check whether the cell has large enough values for all types of the scores. 
-bool SSbCCL::isVaild(const int& row, const int& col) const
+bool SSbCCL::isValid(const int& row, const int& col) const
 {
     for (const auto& map: *score_) 
     {
-        if (map.first(row, col) == NAN) return false; 
+        if (std::isnan(map.first(row, col))) return false; 
         if (map.first(row, col) < map.second) return false;
     }
     return true;
@@ -72,7 +72,7 @@ void SSbCCL::firstScan()
         for (int j=0; j<cols_; ++j)
         {
             // std::cout << "Index: (" << i << "," << j << ")" << std::endl; 
-            if (!isVaild(i,j)) {    
+            if (!isValid(i,j)) {    
                 // std::cout << "The cell does not have vaild value. " << std::endl;
                 labels_->coeffRef(i,j) = 0;
                 continue;
@@ -84,14 +84,23 @@ void SSbCCL::firstScan()
                 int r=i+f_mask_[0][k];
                 int c=j+f_mask_[1][k];
                 if (!inMatrix(r, c)) {
+                    // std::cout << "cell (" << r << "," << c << ") is out of range" << std::endl;
                     is_labeled[k-1] = false;
                     continue;
                 }
                 if (labels_->coeff(r,c) != 0)
                 {
-                    if (!canConnect(i,j, labels_->coeff(r,c))) is_labeled[k-1] = true;
+                    if (canConnect(i,j, labels_->coeff(r,c))) is_labeled[k-1] = true;
+                    else {
+                        is_labeled[k-1] = false;
+                        // std::cout << "cell (" << r << "," << c << ") cannot be connected" << std::endl;
+                    }
                 }
-                is_labeled[k-1] = false;
+                else {
+                    // std::cout << "cell (" << r << "," << c << ") is not labeled" << std::endl;
+                    is_labeled[k-1] = false;
+                }
+                
             }
             // all of cells in the mask do not have a label. 
             if (std::all_of(is_labeled.begin(), is_labeled.end(), [](bool x){return !x;})) 
@@ -107,7 +116,11 @@ void SSbCCL::firstScan()
             {
                 // std::cout << "at least one of the cells in the mask have a label." << std::endl;
                 int t_min = Tmin(i, j, f_mask_);
-                if (t_min == m_) continue;
+                if (t_min >= m_) 
+                {
+                    // std::cout << "Tmin: " << t_min << std::endl;
+                    continue;
+                }
                 
                 labels_->coeffRef(i, j) = t_min;
                 connect(i,j, labels_->coeffRef(i,j));
@@ -125,8 +138,8 @@ void SSbCCL::firstScan()
             // std::cout << "is_labeled: ";
             // for (int k=0; k<4; ++k) std::cout << is_labeled[k] << " ";
             // std::cout << std::endl;
-            // // std::cout << "lables: " << std::endl;
-            // // std::cout << *labels_ << std::endl;
+            // std::cout << "lables: " << std::endl;
+            // std::cout << *labels_ << std::endl;
             // std::cout << "tree: ";
             // for (const auto& t: table_) std::cout << t << " ";
             // std::cout << std::endl;

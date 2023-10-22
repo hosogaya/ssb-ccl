@@ -18,7 +18,7 @@ public:
     SSbCCL();
     ~SSbCCL();
 
-    bool initialize(const StateMatrix& state, const ScoreMatrix& score, LabelMatrix& labels);
+    virtual bool initialize(const StateMatrix& state, const ScoreMatrix& score, LabelMatrix& labels);
     void firstScan();
     bool forwardScan();
     bool backwardScan();
@@ -28,7 +28,7 @@ public:
     int Tmin(const int& row, const int& col, const int mask[2][5]) const;
 
     // check the socre of cell(row, col) has valid value
-    virtual bool isVaild(const int& row, const int& col) const;
+    virtual bool isValid(const int& row, const int& col) const;
 
     // check the connectivity according to the states. 
     virtual bool canConnect(const int& row, const int& col, const int& label) const;
@@ -40,7 +40,6 @@ public:
     // process initialize the state of the new region (new label).
     virtual void newRegion(const int& row, const int& col);
     
-
 protected:
     const int f_mask_[2][5] = {{0,-1,-1,-1, 0}, {0, 0, 1,-1,-1}};
     const int b_mask_[2][5] = {{0, 1, 1, 1, 0}, {0, 0,-1, 1, 1}};
